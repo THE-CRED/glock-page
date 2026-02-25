@@ -366,7 +366,7 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0;
   filter: blur(10px);
   transform: translateX(-30px);
-  transition: opacity 1.2s linear, filter 1.2s linear, transform 1.2s linear;
+  transition: opacity 0.7s linear, filter 0.7s linear, transform 0.7s linear;
 }
 
 .demo-text.in-view {

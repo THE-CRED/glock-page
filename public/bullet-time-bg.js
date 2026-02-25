@@ -190,6 +190,32 @@
       ctx.rotate(Math.PI / 2); // rotate back
     }
 
+    // Trail behind bullet - < shape with shockwave style fade
+    if (!isSlowMode) {
+      // Extended fading trail line
+      const trailGradient = ctx.createLinearGradient(-1200, 0, -LOGO_SIZE / 2, 0);
+      trailGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      trailGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
+      ctx.strokeStyle = trailGradient;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-1200, 0);
+      ctx.lineTo(-LOGO_SIZE / 2, 0);
+      ctx.stroke();
+
+      // < shape trail with fade
+      const chevronGradient = ctx.createLinearGradient(-LOGO_SIZE / 2 - 80, 0, -LOGO_SIZE / 2, 0);
+      chevronGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      chevronGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
+      ctx.strokeStyle = chevronGradient;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-LOGO_SIZE / 2 - 80, -25);
+      ctx.lineTo(-LOGO_SIZE / 2 - 10, 0);
+      ctx.lineTo(-LOGO_SIZE / 2 - 80, 25);
+      ctx.stroke();
+    }
+
     ctx.restore();
   }
 

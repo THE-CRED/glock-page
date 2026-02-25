@@ -362,7 +362,6 @@ export default function Home() {
         <div className="footer-container">
           <div className="footer-logo">
             <img src="/logo.png" alt="Glock" className="footer-logo-icon" />
-            <span>Glock</span>
           </div>
           <div className="footer-links">
             <a href="#">Documentation</a>

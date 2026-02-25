@@ -46,8 +46,8 @@
     ctx.fillStyle = CONFIG.backgroundColor;
     ctx.fillRect(0, 0, width, height);
 
-    // Draw subtle noise
-    drawNoise();
+    // Noise disabled for performance
+    // drawNoise();
 
     const bulletY = height * CONFIG.bulletY;
 

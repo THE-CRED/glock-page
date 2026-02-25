@@ -34,7 +34,7 @@
 
   // Logo image for bullet
   let logoImage = null;
-  const LOGO_SIZE = 40; // size of the logo bullet
+  const LOGO_SIZE = 50; // size of the logo bullet
 
   // ============================================
   // RENDER
@@ -193,11 +193,11 @@
     ctx.arc(0, 0, LOGO_SIZE, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw logo rotated 90 degrees (horizontal) or fallback to white circle
+    // Draw logo rotated -90 degrees (pointing right, horizontal) or fallback to white circle
     if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
-      ctx.rotate(Math.PI / 2); // rotate 90 degrees
+      ctx.rotate(-Math.PI / 2); // rotate -90 degrees (pointing right)
       ctx.drawImage(logoImage, -LOGO_SIZE / 2, -LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE);
-      ctx.rotate(-Math.PI / 2); // rotate back
+      ctx.rotate(Math.PI / 2); // rotate back
     } else {
       // Fallback bullet shape
       ctx.beginPath();
@@ -300,9 +300,9 @@
     ctx = canvas.getContext('2d');
     handleResize();
 
-    // Load logo image
+    // Load logo image (SVG)
     logoImage = new Image();
-    logoImage.src = 'logo.png';
+    logoImage.src = 'logo.svg';
 
     // Start bullet from middle
     bulletX = width * 0.5;

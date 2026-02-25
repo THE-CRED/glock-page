@@ -183,62 +183,11 @@
     ctx.save();
     ctx.translate(bx, by);
 
-    // Outer glow
-    const glowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, LOGO_SIZE);
-    glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
-    glowGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.08)');
-    glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = glowGradient;
-    ctx.beginPath();
-    ctx.arc(0, 0, LOGO_SIZE, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw logo rotated -90 degrees (pointing right, horizontal) or fallback to white circle
+    // Draw logo rotated -90 degrees (pointing right, horizontal)
     if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
       ctx.rotate(-Math.PI / 2); // rotate -90 degrees (pointing right)
       ctx.drawImage(logoImage, -LOGO_SIZE / 2, -LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE);
       ctx.rotate(Math.PI / 2); // rotate back
-    } else {
-      // Fallback bullet shape
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.fill();
-    }
-
-    // Front compression cone when moving fast
-    if (!isSlowMode) {
-      const coneGradient = ctx.createRadialGradient(LOGO_SIZE / 2, 0, 0, LOGO_SIZE / 2, 0, 50);
-      coneGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-      coneGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.03)');
-      coneGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      ctx.fillStyle = coneGradient;
-      ctx.beginPath();
-      ctx.moveTo(LOGO_SIZE / 2, 0);
-      ctx.lineTo(LOGO_SIZE + 35, -20);
-      ctx.lineTo(LOGO_SIZE + 35, 20);
-      ctx.closePath();
-      ctx.fill();
-
-      // Bright skinny trail behind bullet - < shape
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-LOGO_SIZE / 2 - 15, -10);
-      ctx.lineTo(-LOGO_SIZE / 2 - 5, 0);
-      ctx.lineTo(-LOGO_SIZE / 2 - 15, 10);
-      ctx.stroke();
-
-      // Extended trail line - longer
-      const trailGradient = ctx.createLinearGradient(-600, 0, -LOGO_SIZE / 2, 0);
-      trailGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-      trailGradient.addColorStop(1, 'rgba(255, 255, 255, 0.9)');
-      ctx.strokeStyle = trailGradient;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(-600, 0);
-      ctx.lineTo(-LOGO_SIZE / 2, 0);
-      ctx.stroke();
     }
 
     ctx.restore();

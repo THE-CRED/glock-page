@@ -183,12 +183,12 @@
     ctx.save();
     ctx.translate(bx, by);
 
-    // Draw logo rotated 90 degrees and mirrored (pointing right, horizontal)
+    // Draw logo rotated 90 degrees and mirrored vertically (pointing right, horizontal)
     if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
       ctx.rotate(Math.PI / 2); // rotate 90 degrees
-      ctx.scale(1, -1); // mirror horizontally
+      ctx.scale(-1, 1); // mirror vertically
       ctx.drawImage(logoImage, -LOGO_SIZE / 2, -LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE);
-      ctx.scale(1, -1); // reset mirror
+      ctx.scale(-1, 1); // reset mirror
       ctx.rotate(-Math.PI / 2); // rotate back
     }
 

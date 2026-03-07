@@ -1,6 +1,7 @@
 /**
  * Bullet-Time Air Ripple Background Animation
- * Bullet cuts through air leaving ripples behind at fixed positions
+ * Desktop: Bullet flies left to center, fires right on click
+ * Mobile: Bullet rises from bottom to center, fires upward on click
  */
 
 (function() {
@@ -10,31 +11,40 @@
     bulletY: 0.5,
 
     // Ripple settings
-    rippleSpawnInterval: 95, // spawn ripple every N pixels traveled
-    rippleMaxRadius: 1200, // max vertical size (extends past top/bottom of frame)
+    rippleSpawnInterval: 221,
+    rippleMaxRadius: 552,
     rippleOpacity: 0.15,
 
-    noiseOpacity: 0.04,
     backgroundColor: '#0a0a0a',
   };
 
   let canvas, ctx;
   let width, height, dpr;
   let animationId = null;
-  let bulletX = -200;
-  let lastRippleX = -999;
+  let bulletX = 0;
+  let bulletYPos = 0;
+  let lastRipplePos = -999;
   let time = 0;
-  let ripples = []; // array of {x, y, birthTime}
+  let ripples = [];
+  let isMobile = false;
 
-  let isSlowMode = false;
+  // States: 'entering' -> 'waiting' -> 'firing' -> 'done'
+  let state = 'entering';
   let hasRevealedPage = false;
   const FAST_SPEED = 56;
   const SLOW_SPEED = 0.1;
   let currentSpeed = FAST_SPEED;
 
-  // Logo image for bullet
-  let logoImage = null;
-  const LOGO_SIZE = 50; // size of the logo bullet
+  // Entering animation
+  let enterStartTime = 0;
+  const ENTER_DURATION = 800;
+
+  // Pulse glow for waiting state
+  let pulseTime = 0;
+
+  // Bullet image
+  let bulletImage = null;
+  const BULLET_SIZE = 50;
 
   // ============================================
   // RENDER
@@ -42,61 +52,24 @@
   function render(timestamp) {
     time = timestamp;
 
-    // Clear
     ctx.fillStyle = CONFIG.backgroundColor;
     ctx.fillRect(0, 0, width, height);
 
-    // Noise disabled for performance
-    // drawNoise();
+    const centerX = width * 0.5;
+    const centerY = height * CONFIG.bulletY;
 
-    const bulletY = height * CONFIG.bulletY;
-
-    // Update bullet position - bullet flies from center off screen
-    if (!isSlowMode) {
-      const decelStart = width * 0.85;  // start slowing at 85%
-      const decelEnd = width + 800;     // fully slow by this point (waves off screen)
-      const revealPoint = width * 0.6;  // reveal content early
-
-      // Reveal the rest of the page early
-      if (!hasRevealedPage && bulletX >= revealPoint) {
-        hasRevealedPage = true;
-        document.body.classList.add('animation-complete');
-      }
-
-      // Linear interpolation of speed based on position
-      if (bulletX >= decelStart) {
-        const progress = (bulletX - decelStart) / (decelEnd - decelStart);
-        currentSpeed = FAST_SPEED - (FAST_SPEED - SLOW_SPEED) * Math.min(progress, 1);
-      }
-
-      bulletX += currentSpeed;
-
-      if (bulletX >= decelEnd) {
-        isSlowMode = true;
-      }
-    }
-    // Waves persist and animate - no reset
-
-    // Spawn MULTIPLE ripples per frame based on distance traveled
-    if (!isSlowMode) {
-      while (bulletX - lastRippleX >= CONFIG.rippleSpawnInterval) {
-        lastRippleX += CONFIG.rippleSpawnInterval;
-        ripples.push({
-          x: lastRippleX,
-          y: bulletY,
-          birthTime: timestamp
-        });
+    if (state === 'firing') {
+      if (isMobile) {
+        renderFiringMobile(timestamp);
+      } else {
+        renderFiringDesktop(timestamp);
       }
     }
 
-    // Draw all ripples (oldest first so newest are on top)
-    ripples.forEach((ripple, index) => {
-      drawRipple(ripple, index, width);
-    });
-
-    // Draw bullet (only if on screen)
-    if (bulletX <= width + 50) {
-      drawBullet(bulletX, bulletY);
+    else if (state === 'done') {
+      ripples.forEach((ripple, index) => {
+        drawRipple(ripple, index);
+      });
     }
 
     // Vignette
@@ -112,129 +85,264 @@
     animationId = requestAnimationFrame(render);
   }
 
-  function drawRipple(ripple, index, screenWidth) {
-    const age = time - ripple.birthTime;
+  // ============================================
+  // DESKTOP FIRING (left to right)
+  // ============================================
+  function renderFiringDesktop(timestamp) {
+    const bulletY = height * CONFIG.bulletY;
+    const decelStart = width * 0.85;
+    const decelEnd = width + 800;
+    const revealPoint = width * 0.52;
 
-    // Ripple grows over time
-    const growthProgress = Math.min(age / 1000, 1); // reaches full size in 1s
-
-    // Flowing wave oscillation - wave travels through all ripples over time
-    // Linear triangle wave instead of sine for consistent motion
-    const wavePhase = (time * 0.00015 - index * 0.08) % (Math.PI * 2);
-    const normalizedPhase = wavePhase / (Math.PI * 2); // 0 to 1
-    const oscillation = normalizedPhase < 0.5 ? (normalizedPhase * 4 - 1) : (3 - normalizedPhase * 4); // linear triangle -1 to 1
-    const baseScale = 0.65 + oscillation * 0.25; // oscillates between 0.4 and 0.9
-
-    const currentScale = baseScale * growthProgress;
-    const waveWidth = CONFIG.rippleMaxRadius * currentScale;
-
-    // Fade on the RIGHT side, more prominent on LEFT
-    // Fade starts at 30% mark and fades toward right edge
-    const fadeStart = screenWidth * 0.3; // start fading at 30%
-    let positionFade = 1;
-    if (ripple.x > fadeStart) {
-      positionFade = Math.max(0, (screenWidth - ripple.x) / (screenWidth - fadeStart));
-      positionFade = positionFade * positionFade; // smooth fade curve
+    if (!hasRevealedPage && bulletX >= revealPoint) {
+      hasRevealedPage = true;
+      document.body.classList.add('animation-complete');
+      document.body.style.overflow = '';
     }
 
-    // Left side boost - more prominent
-    const leftBoost = 1 + ((screenWidth - ripple.x) / screenWidth) * 0.6; // up to 1.6x on left edge
+    if (bulletX >= decelStart) {
+      const progress = (bulletX - decelStart) / (decelEnd - decelStart);
+      currentSpeed = FAST_SPEED - (FAST_SPEED - SLOW_SPEED) * Math.min(progress, 1);
+    }
 
-    const opacity = CONFIG.rippleOpacity * positionFade * leftBoost;
+    bulletX += currentSpeed;
+    bulletYPos = bulletY;
 
-    if (waveWidth < 1 || opacity < 0.001) return;
+    if (bulletX >= decelEnd) {
+      state = 'done';
+    }
 
-    // Slight vertical wave animation for curl effect - linear motion
-    const vertPhase = ((time * 0.001 + index * 0.2) % (Math.PI * 2)) / (Math.PI * 2);
-    const waveOffset = (vertPhase < 0.5 ? (vertPhase * 4 - 1) : (3 - vertPhase * 4)) * 4;
+    // Spawn ripples
+    while (bulletX - lastRipplePos >= CONFIG.rippleSpawnInterval) {
+      lastRipplePos += CONFIG.rippleSpawnInterval;
+      ripples.push({
+        x: lastRipplePos,
+        y: bulletY,
+        birthTime: timestamp
+      });
+    }
 
-    ctx.save();
-    ctx.translate(ripple.x, ripple.y + waveOffset);
-    ctx.scale(-0.2, 1); // compress horizontally for shockwave look (mirrored)
+    ripples.forEach((ripple, index) => {
+      drawRipple(ripple, index);
+    });
 
-    // Draw curled arc - extends past 90 degrees for curl effect
-    const curlAmount = 0.58; // how much the ends curl inward (0.5 = 90deg, 0.58 = ~104deg)
-
-    // Soft outer glow
-    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
-    ctx.lineWidth = 10;
-    ctx.beginPath();
-    ctx.arc(0, 0, waveWidth, -Math.PI * curlAmount, Math.PI * curlAmount);
-    ctx.stroke();
-
-    // Main glowing line - more pronounced
-    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.arc(0, 0, waveWidth, -Math.PI * curlAmount, Math.PI * curlAmount);
-    ctx.stroke();
-
-    // Inner bright core line
-    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 1.2})`;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(0, 0, waveWidth * 0.95, -Math.PI * curlAmount, Math.PI * curlAmount);
-    ctx.stroke();
-
-    ctx.restore();
+    if (bulletX <= width + 50) {
+      drawBullet(bulletX, bulletYPos, true);
+    }
   }
 
-  function drawBullet(bx, by) {
+  // ============================================
+  // MOBILE FIRING (bottom to top)
+  // ============================================
+  function renderFiringMobile(timestamp) {
+    const decelStart = height * 0.15;
+    const decelEnd = -800;
+    const revealPoint = height * 0.4;
+
+    if (!hasRevealedPage && bulletYPos <= revealPoint) {
+      hasRevealedPage = true;
+      document.body.classList.add('animation-complete');
+      document.body.style.overflow = '';
+    }
+
+    if (bulletYPos <= decelStart) {
+      const progress = (decelStart - bulletYPos) / (decelStart - decelEnd);
+      currentSpeed = FAST_SPEED - (FAST_SPEED - SLOW_SPEED) * Math.min(progress, 1);
+    }
+
+    bulletYPos -= currentSpeed;
+
+    if (bulletYPos <= decelEnd) {
+      state = 'done';
+    }
+
+    // Spawn ripples going upward (tighter spacing on mobile)
+    const mobileInterval = Math.floor(CONFIG.rippleSpawnInterval * 0.6);
+    while (lastRipplePos - bulletYPos >= mobileInterval) {
+      lastRipplePos -= mobileInterval;
+      ripples.push({
+        x: bulletX,
+        y: lastRipplePos,
+        birthTime: timestamp
+      });
+    }
+
+    ripples.forEach((ripple, index) => {
+      drawRipple(ripple, index);
+    });
+
+    if (bulletYPos >= -50) {
+      drawBullet(bulletX, bulletYPos, true);
+    }
+  }
+
+  // ============================================
+  // DRAW BULLET
+  // ============================================
+  function drawBullet(bx, by, showTrail) {
     ctx.save();
     ctx.translate(bx, by);
 
-    // Draw logo rotated 90 degrees and mirrored vertically (pointing right, horizontal)
-    if (logoImage && logoImage.complete && logoImage.naturalWidth > 0) {
-      ctx.rotate(Math.PI / 2); // rotate 90 degrees
-      ctx.scale(-1, 1); // mirror vertically
-      ctx.drawImage(logoImage, -LOGO_SIZE / 2, -LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE);
-      ctx.scale(-1, 1); // reset mirror
-      ctx.rotate(-Math.PI / 2); // rotate back
+    if (bulletImage && bulletImage.complete && bulletImage.naturalWidth > 0) {
+      // Clip to rounded rect for smooth corners
+      ctx.beginPath();
+      ctx.roundRect(-BULLET_SIZE / 2, -BULLET_SIZE / 2, BULLET_SIZE, BULLET_SIZE, 8);
+      ctx.clip();
+
+      if (isMobile) {
+        // Upright (natural orientation) for mobile
+        ctx.drawImage(bulletImage, -BULLET_SIZE / 2, -BULLET_SIZE / 2, BULLET_SIZE, BULLET_SIZE);
+      } else {
+        // Rotated 90deg clockwise (pointing right) for desktop — always
+        ctx.rotate(Math.PI / 2);
+        ctx.scale(-1, 1);
+        ctx.drawImage(bulletImage, -BULLET_SIZE / 2, -BULLET_SIZE / 2, BULLET_SIZE, BULLET_SIZE);
+        ctx.scale(-1, 1);
+        ctx.rotate(-Math.PI / 2);
+      }
     }
 
-    // Trail behind bullet - < shape with shockwave style fade
-    if (!isSlowMode) {
-      // Extended fading trail line
-      const trailGradient = ctx.createLinearGradient(-1200, 0, -LOGO_SIZE / 2, 0);
-      trailGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-      trailGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
-      ctx.strokeStyle = trailGradient;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-1200, 0);
-      ctx.lineTo(-LOGO_SIZE / 2, 0);
-      ctx.stroke();
+    // Trail behind bullet
+    if (showTrail) {
+      if (isMobile) {
+        // Trail below bullet (downward)
+        const trailGradient = ctx.createLinearGradient(0, BULLET_SIZE / 2, 0, 1200);
+        trailGradient.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
+        trailGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.strokeStyle = trailGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, BULLET_SIZE / 2);
+        ctx.lineTo(0, 1200);
+        ctx.stroke();
 
-      // < shape trail with fade
-      const chevronGradient = ctx.createLinearGradient(-LOGO_SIZE / 2 - 80, 0, -LOGO_SIZE / 2, 0);
-      chevronGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-      chevronGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
-      ctx.strokeStyle = chevronGradient;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-LOGO_SIZE / 2 - 80, -25);
-      ctx.lineTo(-LOGO_SIZE / 2 - 10, 0);
-      ctx.lineTo(-LOGO_SIZE / 2 - 80, 25);
-      ctx.stroke();
+        // V shape trail
+        const chevronGradient = ctx.createLinearGradient(0, BULLET_SIZE / 2, 0, BULLET_SIZE / 2 + 80);
+        chevronGradient.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
+        chevronGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.strokeStyle = chevronGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-25, BULLET_SIZE / 2 + 80);
+        ctx.lineTo(0, BULLET_SIZE / 2 + 10);
+        ctx.lineTo(25, BULLET_SIZE / 2 + 80);
+        ctx.stroke();
+      } else {
+        // Trail to the left (desktop)
+        const trailGradient = ctx.createLinearGradient(-1200, 0, -BULLET_SIZE / 2, 0);
+        trailGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        trailGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
+        ctx.strokeStyle = trailGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-1200, 0);
+        ctx.lineTo(-BULLET_SIZE / 2, 0);
+        ctx.stroke();
+
+        // < shape trail
+        const chevronGradient = ctx.createLinearGradient(-BULLET_SIZE / 2 - 80, 0, -BULLET_SIZE / 2, 0);
+        chevronGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        chevronGradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
+        ctx.strokeStyle = chevronGradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-BULLET_SIZE / 2 - 80, -25);
+        ctx.lineTo(-BULLET_SIZE / 2 - 10, 0);
+        ctx.lineTo(-BULLET_SIZE / 2 - 80, 25);
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
   }
 
-  function drawNoise() {
-    const imageData = ctx.getImageData(0, 0, width * dpr, height * dpr);
-    const data = imageData.data;
-    const noiseAmount = 255 * CONFIG.noiseOpacity;
+  // ============================================
+  // DRAW RIPPLE
+  // ============================================
+  function drawRipple(ripple, index) {
+    const age = time - ripple.birthTime;
+    const growthProgress = Math.min(age / 1000, 1);
 
-    for (let i = 0; i < data.length; i += 16) {
-      const noise = (Math.random() - 0.5) * noiseAmount;
-      data[i] = Math.min(255, Math.max(0, data[i] + noise));
-      data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
-      data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+    const wavePhase = (time * 0.00015 - index * 0.08) % (Math.PI * 2);
+    const normalizedPhase = wavePhase / (Math.PI * 2);
+    const oscillation = normalizedPhase < 0.5 ? (normalizedPhase * 4 - 1) : (3 - normalizedPhase * 4);
+    const baseScale = 0.65 + oscillation * 0.25;
+
+    const currentScale = baseScale * growthProgress;
+
+    if (isMobile) {
+      // Mobile: horizontal ovals, size descends from bottom (big) to top (small)
+      const positionRatio = ripple.y / height;
+      const sizeMultiplier = 0.3 + positionRatio * 1.1; // bigger at bottom, smaller at top
+      const waveWidth = CONFIG.rippleMaxRadius * 0.6 * currentScale * sizeMultiplier;
+
+      const opacity = CONFIG.rippleOpacity;
+      if (waveWidth < 1 || opacity < 0.001) return;
+
+      const horzPhase = ((time * 0.001 + index * 0.2) % (Math.PI * 2)) / (Math.PI * 2);
+      const waveOffset = (horzPhase < 0.5 ? (horzPhase * 4 - 1) : (3 - horzPhase * 4)) * 4;
+
+      ctx.save();
+      ctx.translate(ripple.x + waveOffset, ripple.y);
+      ctx.scale(1, 0.15); // squash vertically into wide horizontal ovals
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 1.2})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth * 0.95, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
+    } else {
+      // Desktop: vertical ovals, size descends left to right
+      const positionRatio = ripple.x / width;
+      const sizeMultiplier = 1.4 - positionRatio * 1.1;
+      const waveWidth = CONFIG.rippleMaxRadius * currentScale * sizeMultiplier;
+
+      const opacity = CONFIG.rippleOpacity;
+      if (waveWidth < 1 || opacity < 0.001) return;
+
+      const vertPhase = ((time * 0.001 + index * 0.2) % (Math.PI * 2)) / (Math.PI * 2);
+      const waveOffset = (vertPhase < 0.5 ? (vertPhase * 4 - 1) : (3 - vertPhase * 4)) * 4;
+
+      ctx.save();
+      ctx.translate(ripple.x, ripple.y + waveOffset);
+      ctx.scale(0.15, 1); // squash horizontally into tall elongated ovals
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`;
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 1.2})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, waveWidth * 0.95, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
     }
-
-    ctx.putImageData(imageData, 0, 0);
   }
+
 
   // ============================================
   // RESIZE
@@ -266,38 +374,70 @@
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.body.classList.add('animation-complete');
       return;
     }
 
+    // Detect mobile
+    isMobile = window.innerWidth <= 768;
+
+    // Lock scrolling until bullet reveals page
+    document.body.style.overflow = 'hidden';
+
     canvas = document.createElement('canvas');
-    canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+    canvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;';
     container.style.position = 'relative';
     container.insertBefore(canvas, container.firstChild);
 
     ctx = canvas.getContext('2d');
     handleResize();
 
-    // Load logo image (SVG)
-    logoImage = new Image();
-    logoImage.src = 'logo.svg';
+    // Load bullet image
+    bulletImage = new Image();
+    bulletImage.src = 'glock-logo.png';
 
-    // Start bullet from middle
-    bulletX = width * 0.5;
-    isSlowMode = false;
+    // Start firing immediately
+    state = 'firing';
     currentSpeed = FAST_SPEED;
     ripples = [];
 
-    // Pre-populate ripples on the left side of the screen
-    const bulletY = height * CONFIG.bulletY;
-    for (let x = 0; x < width * 0.5; x += CONFIG.rippleSpawnInterval) {
-      ripples.push({
-        x: x,
-        y: bulletY,
-        birthTime: performance.now()
-      });
+    // Haptic feedback on supported devices
+    if (navigator.vibrate) {
+      navigator.vibrate([15, 30, 10]);
     }
 
-    lastRippleX = bulletX - CONFIG.rippleSpawnInterval;
+    if (isMobile) {
+      // Start from very bottom
+      bulletX = width * 0.5;
+      bulletYPos = height + BULLET_SIZE;
+      // Pre-populate ripples
+      const mobileInterval = Math.floor(CONFIG.rippleSpawnInterval * 0.6);
+      const bottomY = height + 200;
+      const topY = -mobileInterval * 2;
+      const totalRipples = Math.ceil((bottomY - topY) / mobileInterval);
+      for (let i = 0; i < totalRipples; i++) {
+        ripples.push({
+          x: bulletX,
+          y: bottomY - (i * mobileInterval),
+          birthTime: performance.now()
+        });
+      }
+      lastRipplePos = bottomY - ((totalRipples - 1) * mobileInterval);
+    } else {
+      // Start from far left
+      bulletX = -BULLET_SIZE;
+      bulletYPos = height * CONFIG.bulletY;
+      // Pre-populate ripples
+      const totalRipples = Math.floor((width + 400) / CONFIG.rippleSpawnInterval);
+      for (let i = 0; i < totalRipples; i++) {
+        ripples.push({
+          x: i * CONFIG.rippleSpawnInterval,
+          y: bulletYPos,
+          birthTime: performance.now()
+        });
+      }
+      lastRipplePos = totalRipples * CONFIG.rippleSpawnInterval;
+    }
 
     window.addEventListener('resize', handleResize);
 

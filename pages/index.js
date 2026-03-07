@@ -57,12 +57,11 @@ export default function Home() {
         <div className="hero-split">
           <div className="hero-left">
             <div className="hero-badges">
-              <span className="hero-badge">#1 on HumanEval</span>
               <span className="hero-badge">#1 on SWE-bench</span>
             </div>
             <h1 className="hero-title">One Shot Your Code</h1>
             <p className="hero-subtitle">
-              For developers who don&apos;t have time for back and forth
+              Production-ready code. No review required.
             </p>
             <div className="hero-install">
               <code className="install-cmd">

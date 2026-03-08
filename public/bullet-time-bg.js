@@ -31,7 +31,7 @@
   // States: 'entering' -> 'waiting' -> 'firing' -> 'done'
   let state = 'entering';
   let hasRevealedPage = false;
-  const FAST_SPEED = 56;
+  const FAST_SPEED = 150;
   const SLOW_SPEED = 0.1;
   let currentSpeed = FAST_SPEED;
 

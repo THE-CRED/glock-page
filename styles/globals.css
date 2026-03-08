@@ -173,6 +173,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .demo-section-title {
   font-size: clamp(1.5rem, 3.5vw, 2rem);
+  letter-spacing: 0.05em;
 }
 
 .demo-eyebrow {

@@ -172,8 +172,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .demo-section-title {
-  font-size: clamp(1.5rem, 3.5vw, 2rem);
-  letter-spacing: 0.05em;
+  /* inherits .section-title defaults */
 }
 
 .demo-eyebrow {
@@ -181,7 +180,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.03em;
   color: rgba(255, 255, 255, 0.5);
   margin-bottom: var(--spacing-sm);
 }
@@ -281,47 +280,31 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Benchmark bars grow in from left when visible */
 @keyframes barGrow {
-  0% { clip-path: inset(0 100% 0 0); opacity: 0; }
-  40% { opacity: 1; }
-  100% { clip-path: inset(0 0 0 0); opacity: 1; }
+  0% { width: 0; }
+  100% { width: var(--width); }
 }
+
+@keyframes barGrowGlock {
+  0% { width: 0; }
+  100% { width: var(--width); }
+}
+
 
 .benchmark-bar {
-  clip-path: inset(0 100% 0 0);
-  position: relative;
-  overflow: hidden;
-}
-
-.benchmark-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  animation: shimmerBar 3s ease-in-out infinite 2s;
-}
-
-@keyframes shimmerBar {
-  0% { left: -60%; }
-  100% { left: 160%; }
-}
-
-.benchmark-item.glock .benchmark-bar::after {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  width: 0;
 }
 
 .in-view .benchmark-bar {
-  animation: barGrow 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: barGrow 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Others load quick, Glock starts with them but takes longer to reach full width */
-.benchmark-item:nth-child(2) .benchmark-bar { animation-delay: 0s; }
-.benchmark-item:nth-child(3) .benchmark-bar { animation-delay: 0.15s; }
-.benchmark-item:nth-child(4) .benchmark-bar { animation-delay: 0.3s; }
-.benchmark-item:nth-child(5) .benchmark-bar { animation-delay: 0.45s; }
-.benchmark-item:nth-child(1) .benchmark-bar { animation-delay: 0s; animation-duration: 3.5s; }
+/* Competitors animate in first, staggered */
+.in-view .benchmark-item:nth-child(2) .benchmark-bar { animation-delay: 0.05s; }
+.in-view .benchmark-item:nth-child(3) .benchmark-bar { animation-delay: 0.12s; }
+.in-view .benchmark-item:nth-child(4) .benchmark-bar { animation-delay: 0.18s; }
+.in-view .benchmark-item:nth-child(5) .benchmark-bar { animation-delay: 0.24s; }
+/* Glock bar fills right behind the bullet — matched timing */
+.in-view .benchmark-item:nth-child(1) .benchmark-bar { animation: barGrowGlock 1.6s cubic-bezier(0.7, 0, 1, 0.5) 0.5s forwards; }
 
 
 /* Stats bar values — dramatic scale + fade */
@@ -1010,6 +993,26 @@ h1, h2, h3, h4, h5, h6 {
   padding-left: var(--spacing-4xl);
 }
 
+.benchmark-eyebrow {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: var(--spacing-sm);
+}
+
+.benchmark-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.benchmark-header .section-title {
+  margin-bottom: 0;
+}
+
 .benchmark-chart {
   margin-top: var(--spacing-2xl);
   text-align: left;
@@ -1017,70 +1020,214 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .benchmark-item {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 1.75rem;
 }
 
-.benchmark-bar {
+.benchmark-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--color-surface);
-  border-radius: var(--border-radius);
-  width: var(--width);
-  min-width: 200px;
-  transition: all 0.3s ease;
-  border: 1px solid var(--color-border-subtle);
+  margin-bottom: 0.5rem;
+}
+
+.benchmark-bar-track {
+  width: 100%;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.benchmark-bar {
+  height: 100%;
+  width: 0;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
 }
 
 .benchmark-item.glock .benchmark-bar {
-  background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
-  color: #0a0a0a;
-  border: none;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 4px 20px rgba(255, 255, 255, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  position: relative;
+  overflow: visible;
+  outline: none;
 }
 
+.benchmark-item.glock .benchmark-bar-track {
+  overflow: visible;
+}
+
+.benchmark-delta {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(212, 175, 55, 0.6);
+  letter-spacing: 0.01em;
+}
+
+/* Benchmark bullet animation */
+@keyframes benchBulletLife {
+  0% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.bench-bullet {
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* hidden until bar starts at 0.4s, visible during growth, fades out at end */
+.in-view .benchmark-item.glock .bench-bullet {
+  animation: benchBulletLife 2.4s ease 0.5s forwards;
+}
+
+.bench-bullet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 3px;
+  transform: rotate(90deg);
+}
+
+.benchmark-bar-wrap {
+  position: relative;
+}
+
+.bench-shockwave {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 44px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+@keyframes benchShockwaveOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scaleX(1.2) scaleY(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(0.3) scaleY(1.8);
+  }
+}
+
+/* Timed to match bullet position through the bar */
+/* Bullet: 1.6s duration, 0.4s delay, cubic-bezier(0.2, 0.8, 0.3, 1) */
+/* 16 shockwaves — overlapping, right on the bullet */
+/* Bar/bullet: 1.6s, 0.4s delay, cubic-bezier(0.2,0.8,0.3,1) */
+/* Shockwaves — spawn behind the bullet (slightly delayed from bullet position) */
+/* Shockwaves match cubic-bezier(0.7, 0, 1, 0.5) + slight offset behind bullet */
+/* Bullet: 1.6s duration, 1.0s delay. Slow start, fast end. */
+.in-view .bench-shockwave.sw-1  { left: 5%;  animation: benchShockwaveOut 0.55s ease-out 1.00s forwards; }
+.in-view .bench-shockwave.sw-2  { left: 11%; animation: benchShockwaveOut 0.55s ease-out 1.18s forwards; }
+.in-view .bench-shockwave.sw-3  { left: 17%; animation: benchShockwaveOut 0.55s ease-out 1.34s forwards; }
+.in-view .bench-shockwave.sw-4  { left: 23%; animation: benchShockwaveOut 0.55s ease-out 1.48s forwards; }
+.in-view .bench-shockwave.sw-5  { left: 29%; animation: benchShockwaveOut 0.55s ease-out 1.60s forwards; }
+.in-view .bench-shockwave.sw-6  { left: 35%; animation: benchShockwaveOut 0.55s ease-out 1.70s forwards; }
+.in-view .bench-shockwave.sw-7  { left: 41%; animation: benchShockwaveOut 0.55s ease-out 1.79s forwards; }
+.in-view .bench-shockwave.sw-8  { left: 47%; animation: benchShockwaveOut 0.55s ease-out 1.87s forwards; }
+.in-view .bench-shockwave.sw-9  { left: 53%; animation: benchShockwaveOut 0.55s ease-out 1.94s forwards; }
+.in-view .bench-shockwave.sw-10 { left: 59%; animation: benchShockwaveOut 0.55s ease-out 2.00s forwards; }
+.in-view .bench-shockwave.sw-11 { left: 65%; animation: benchShockwaveOut 0.55s ease-out 2.05s forwards; }
+.in-view .bench-shockwave.sw-12 { left: 71%; animation: benchShockwaveOut 0.55s ease-out 2.09s forwards; }
+.in-view .bench-shockwave.sw-13 { left: 77%; animation: benchShockwaveOut 0.55s ease-out 2.12s forwards; }
+.in-view .bench-shockwave.sw-14 { left: 83%; animation: benchShockwaveOut 0.55s ease-out 2.15s forwards; }
+.in-view .bench-shockwave.sw-15 { left: 89%; animation: benchShockwaveOut 0.55s ease-out 2.17s forwards; }
+.in-view .bench-shockwave.sw-16 { left: 95%; animation: benchShockwaveOut 0.55s ease-out 2.19s forwards; }
+
 .benchmark-name {
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 1.125rem;
   display: flex;
   align-items: center;
   gap: 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.benchmark-item.glock .benchmark-meta {
+  opacity: 0;
+}
+
+.in-view .benchmark-item.glock .benchmark-meta {
+  animation: fadeIn 2.2s ease 2.1s forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; filter: blur(8px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+
+.benchmark-item.glock .benchmark-name {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
 }
 
 .benchmark-logo {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+  opacity: 0.5;
 }
 
 .benchmark-logo-img {
-  border-radius: 4px;
+  border-radius: 3px;
   object-fit: contain;
 }
 
 .benchmark-item.glock .benchmark-logo {
-  filter: invert(1);
+  opacity: 1;
+  filter: none;
 }
 
 .benchmark-score {
-  font-family: var(--font-header);
+  font-family: var(--font-mono, var(--font-header));
   font-weight: 400;
-  letter-spacing: -1px;
+  font-size: 1.125rem;
+  letter-spacing: -0.5px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.benchmark-item.glock .benchmark-score {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
 }
 
 .benchmark-note {
-  margin-top: var(--spacing-xl);
-  font-size: 0.875rem;
-  color: var(--color-text-tertiary);
-  text-align: center;
+  margin-top: var(--spacing-2xl);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.25);
+  text-align: left;
+  letter-spacing: 0.01em;
 }
 
 .benchmarks .section-title,
 .benchmarks .section-subtitle {
   text-align: left;
+}
+
+.benchmarks .section-subtitle {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+  margin-top: -0.25rem;
 }
 
 .benchmarks .benchmark-note {
@@ -1089,6 +1236,21 @@ h1, h2, h3, h4, h5, h6 {
 
 .benchmarks .section-cta {
   justify-content: flex-start;
+  margin-top: var(--spacing-lg);
+}
+
+.benchmarks .btn-swe {
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+}
+
+.benchmarks .btn-swe:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Principles Section (Linear-style) */
@@ -1787,8 +1949,22 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 100%;
   }
 
+  .benchmark-header {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .benchmark-header .section-title {
+    margin-bottom: 0;
+  }
+
+  .benchmarks {
+    padding: var(--spacing-2xl) var(--spacing-md);
+  }
+
   .benchmark-chart {
-    margin-top: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
   }
 
   .section-title {
@@ -1796,34 +1972,44 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .section-subtitle {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .benchmarks .section-subtitle {
+    display: none;
   }
 
   .benchmark-item {
-    margin-bottom: var(--spacing-sm);
-  }
-
-  .benchmark-bar {
-    min-width: 80px;
-    padding: var(--spacing-sm) var(--spacing-sm);
-    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
   }
 
   .benchmark-name {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .benchmark-score {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .benchmark-logo {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .benchmark-bar-track {
+    height: 18px;
+  }
+
+  .bench-shockwave:not(:nth-child(3n)) {
+    display: none;
   }
 
   .benchmark-note {
     text-align: left;
+  }
+
+  .benchmark-delta {
+    font-size: 0.6875rem;
   }
 
   /* Principles */

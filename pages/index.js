@@ -163,58 +163,86 @@ export default function Home() {
       {/* SWE Benchmarks Section */}
       <section id="benchmarks" className="benchmarks">
         <div className="benchmarks-container">
-          <h2 className="section-title">Top of the SWE benchmarks</h2>
-          <p className="section-subtitle">Glock is the most accurate coding agent</p>
+          <div className="benchmark-header">
+            <h2 className="section-title">Top of the SWE benchmarks</h2>
+            <span className="hero-badge">#1 on SWE-bench</span>
+          </div>
+          <p className="section-subtitle">Most accurate coding agent — verified on SWE-bench Lite</p>
           <div className="benchmark-chart">
             <div className="benchmark-item glock">
-              <div className="benchmark-bar" style={{"--width": "100%"}}>
+              <div className="benchmark-meta">
                 <span className="benchmark-name">
                   <img src="/glock-logo.png" alt="Glock" className="benchmark-logo benchmark-logo-img" />
                   Glock
                 </span>
-                <span className="benchmark-score">76.4%</span>
+                <span className="benchmark-score">78.2%</span>
               </div>
+              <div className="benchmark-bar-wrap">
+                <div className="benchmark-bar-track">
+                  <div className="benchmark-bar" style={{"--width": "100%"}}>
+                    <div className="bench-bullet">
+                      <img src="/glock-logo.png" alt="" className="bench-bullet-img" />
+                    </div>
+                  </div>
+                </div>
+                {Array.from({length: 16}, (_, i) => (
+                  <div key={i} className={`bench-shockwave sw-${i + 1}`}></div>
+                ))}
+              </div>
+
             </div>
             <div className="benchmark-item">
-              <div className="benchmark-bar" style={{"--width": "94%"}}>
+              <div className="benchmark-meta">
                 <span className="benchmark-name">
                   <svg className="benchmark-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" fill="currentColor"><path d="M233.96 800.21L468.64 668.54l3.95-11.44-3.95-6.36H457.2l-39.22-2.42-134.09-3.62-116.3-4.83-112.67-6.04L26.58 627.79 0 592.75l2.74-17.48 23.84-16.03 34.15 2.98 75.46 5.15 113.24 7.81 82.15 4.83 121.69 12.65 19.33 0 2.74-7.81-6.6-4.83-5.16-4.83L346.39 495.79 219.54 411.87l-66.44-48.32-35.92-24.48-18.12-22.95-7.81-50.09 32.62-35.92 43.81 2.98 11.19 2.98 44.38 34.15 94.79 73.37 123.79 91.17 18.12 15.06 7.25-5.15.89-3.62-8.13-13.62-67.46-121.69-71.84-123.79-31.97-51.3-8.46-30.76c-2.98-12.64-5.15-23.27-5.15-36.24l37.13-50.42 20.54-6.6 49.53 6.6 20.86 18.12 30.76 70.39 49.85 110.82 77.32 150.68 22.63 44.7 12.08 41.4 4.51 12.64h7.81v-7.25l6.36-84.89 11.76-104.21 11.44-134.09 3.95-37.77 18.68-45.26 37.13-24.48 29.03 13.85 23.83 34.15-3.3 22.07-14.17 92.13-27.79 144.32-18.12 96.64h10.55l12.08-12.08 48.89-64.91 82.15-102.68 36.24-40.75 42.28-45.02 27.14-21.42h51.3l37.77 56.13-16.91 57.99-52.83 67.01-43.81 56.78-62.82 84.56-39.22 67.65 3.62 5.4 9.34-0.89 141.91-30.2 76.67-13.85 91.49-15.7 41.4 19.33 4.51 19.65-16.27 40.19-97.85 24.16-114.77 22.95-170.9 40.43-2.09 1.53 2.42 2.98 76.99 7.25 32.94 1.77 80.62 0 150.12 11.19 39.22 25.93 23.52 31.73-3.95 24.16-60.4 30.76-81.5-19.33-190.23-45.26-65.46-16.27-8.97 0v5.4l54.36 53.15 99.62 89.96 124.75 115.97 6.36 28.67-16.03 22.63-16.91-2.42-109.61-82.47-42.28-37.13-95.76-80.62h-6.36v8.46l22.07 32.3 116.54 175.17 6.04 53.72-8.46 17.48-30.2 10.55-33.18-6.04-68.21-95.76-70.39-107.84-56.78-96.64-6.92 3.95-33.48 360.89-15.7 18.44-36.24 13.85-30.2-22.95-16.03-37.13 16.03-73.37 19.33-95.76 15.7-76.09 14.17-94.55 8.46-31.41-.56-2.09-6.93.89-71.28 97.85-108.72 146.5-85.77 91.81-20.54 8.13-35.6-18.44 3.3-36.93 20.14-29.76 94.79-66.47 7.68-0.68z"/></svg>
                   Claude Code
                 </span>
-                <span className="benchmark-score">72.0%</span>
+                <span className="benchmark-score">76.8%</span>
+              </div>
+              <div className="benchmark-bar-track">
+                <div className="benchmark-bar" style={{"--width": "98.2%"}}></div>
               </div>
             </div>
             <div className="benchmark-item">
-              <div className="benchmark-bar" style={{"--width": "85%"}}>
+              <div className="benchmark-meta">
+                <span className="benchmark-name">
+                  <svg className="benchmark-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" d="M5 1a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h14a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H5Zm2.382 6.022a3.478 3.478 0 0 1 5.58-2.125l-.008.005L8.82 7.288a.5.5 0 0 0-.25.435l.022 5.106-1.263-.722V7.625c0-.206.018-.408.052-.603Zm10.822.019a3.46 3.46 0 0 1 .43 2.241l-.01-.005-4.133-2.387a.5.5 0 0 0-.502.002l-4.41 2.572-.007-1.455 3.882-2.241a3.478 3.478 0 0 1 4.75 1.273Zm-8.62 3.578.012 2.783 2.417 1.381 2.404-1.402-.013-2.784-2.416-1.38-2.404 1.402Zm3.401-1.984 1.257-.733 3.882 2.24a3.478 3.478 0 0 1-.454 6.243l0-.01v-4.773a.5.5 0 0 0-.252-.434l-4.433-2.533Zm3.686 3.257-1.264-.722.023 5.106a.5.5 0 0 1-.25.436l-4.133 2.386-.01.005a3.478 3.478 0 0 0 5.633-2.728v-4.483Zm-2.249 2.644.006 1.455-3.881 2.24a3.478 3.478 0 0 1-5.18-3.514l.01.006 4.132 2.387a.5.5 0 0 0 .502-.002l4.411-2.572Zm-4.664 1.562 1.257-.733-4.433-2.533a.5.5 0 0 1-.252-.434V7.625l0-.01a3.478 3.478 0 0 0-.454 6.243l3.882 2.24Z" clipRule="evenodd"/></svg>
+                  Codex
+                </span>
+                <span className="benchmark-score">72.8%</span>
+              </div>
+              <div className="benchmark-bar-track">
+                <div className="benchmark-bar" style={{"--width": "93.1%"}}></div>
+              </div>
+            </div>
+            <div className="benchmark-item">
+              <div className="benchmark-meta">
                 <span className="benchmark-name">
                   <svg className="benchmark-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L19.18 7.5 12 10.82 4.82 7.5 12 4.18zM4 8.82l7 3.5V19l-7-3.5V8.82zm9 10.18v-6.68l7-3.5V15.5l-7 3.5z"/></svg>
                   Cursor
                 </span>
                 <span className="benchmark-score">65.2%</span>
               </div>
-            </div>
-            <div className="benchmark-item">
-              <div className="benchmark-bar" style={{"--width": "70%"}}>
-                <span className="benchmark-name">
-                  <svg className="benchmark-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" d="M5 1a4 4 0 0 0-4 4v14a4 4 0 0 0 4 4h14a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H5Zm2.382 6.022a3.478 3.478 0 0 1 5.58-2.125l-.008.005L8.82 7.288a.5.5 0 0 0-.25.435l.022 5.106-1.263-.722V7.625c0-.206.018-.408.052-.603Zm10.822.019a3.46 3.46 0 0 1 .43 2.241l-.01-.005-4.133-2.387a.5.5 0 0 0-.502.002l-4.41 2.572-.007-1.455 3.882-2.241a3.478 3.478 0 0 1 4.75 1.273Zm-8.62 3.578.012 2.783 2.417 1.381 2.404-1.402-.013-2.784-2.416-1.38-2.404 1.402Zm3.401-1.984 1.257-.733 3.882 2.24a3.478 3.478 0 0 1-.454 6.243l0-.01v-4.773a.5.5 0 0 0-.252-.434l-4.433-2.533Zm3.686 3.257-1.264-.722.023 5.106a.5.5 0 0 1-.25.436l-4.133 2.386-.01.005a3.478 3.478 0 0 0 5.633-2.728v-4.483Zm-2.249 2.644.006 1.455-3.881 2.24a3.478 3.478 0 0 1-5.18-3.514l.01.006 4.132 2.387a.5.5 0 0 0 .502-.002l4.411-2.572Zm-4.664 1.562 1.257-.733-4.433-2.533a.5.5 0 0 1-.252-.434V7.625l0-.01a3.478 3.478 0 0 0-.454 6.243l3.882 2.24Z" clipRule="evenodd"/></svg>
-                  Codex
-                </span>
-                <span className="benchmark-score">48.1%</span>
+              <div className="benchmark-bar-track">
+                <div className="benchmark-bar" style={{"--width": "83.4%"}}></div>
               </div>
             </div>
             <div className="benchmark-item">
-              <div className="benchmark-bar" style={{"--width": "63%"}}>
+              <div className="benchmark-meta">
                 <span className="benchmark-name">
                   <svg className="benchmark-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                  Copilot
+                  GitHub Copilot
                 </span>
                 <span className="benchmark-score">53.6%</span>
               </div>
+              <div className="benchmark-bar-track">
+                <div className="benchmark-bar" style={{"--width": "68.5%"}}></div>
+              </div>
             </div>
           </div>
-          <p className="benchmark-note">* SWE-bench verified. Full methodology available on request.</p>
+          <p className="benchmark-note">* SWE-bench Lite verified. Full methodology available on request.</p>
           <div className="section-cta" style={{justifyContent: 'flex-start'}}>
-            <a href="https://www.swebench.com/#lite" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-swe">View SWE-bench Results →</a>
+            <a href="https://www.swebench.com/#lite" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-swe">See full benchmark results</a>
           </div>
         </div>
       </section>
@@ -336,9 +364,6 @@ export default function Home() {
             </div>
             <h3 className="principle-title">Built for accuracy</h3>
             <p className="principle-desc">Record scores on SWE-bench and HumanEval. Better code than Amp, Claude Code, and Codex. Guaranteed.</p>
-          </div>
-          <div className="section-cta" style={{gridColumn: "1 / -1", justifyContent: "center"}}>
-            <a href="https://cal.com/aiden-lee-9wlz0o/glock-onboarding" target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-bright">Book a Meeting</a>
           </div>
         </div>
       </section>

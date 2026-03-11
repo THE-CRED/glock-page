@@ -60,26 +60,21 @@ export default function DeviceAuth() {
       }
 
       const cleanCode = userCode.toUpperCase().replace(/[^A-Z0-9]/g, '')
-      const formattedCode = cleanCode.length >= 8
-        ? `${cleanCode.slice(0, 4)}-${cleanCode.slice(4, 8)}`
-        : cleanCode
 
-      const response = await fetch('/api/trpc/auth.authorizeDevice?batch=1', {
+      const response = await fetch('/api/authorize-device', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          "0": { json: { userCode: formattedCode } },
-        }),
+        body: JSON.stringify({ userCode: cleanCode }),
       })
 
       const result = await response.json()
 
-      if (result[0]?.error) {
-        setError(result[0].error.json?.message || result[0].error.message || 'Invalid or expired code')
-      } else if (result[0]?.result?.data?.success) {
+      if (!response.ok || result.error) {
+        setError(result.error || 'Invalid or expired code')
+      } else if (result.success) {
         setSuccess(true)
       } else {
         setError('Failed to authorize device')

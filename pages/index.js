@@ -412,9 +412,8 @@ export default function Home() {
             <img src="/glock-logo.png" alt="Glock" className="footer-logo-icon" />
           </div>
           <div className="footer-links">
-            <a href="#">Documentation</a>
-            <a href="#">GitHub</a>
-            <a href="#">Twitter</a>
+            <a href="https://github.com/glock-ai/glock" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://x.com/gloock_ai" target="_blank" rel="noopener noreferrer">Twitter</a>
             <a href="mailto:team@glock.dev">Contact</a>
           </div>
           <p className="footer-copyright">&copy; 2025 Glock. Built with Glock.</p>

@@ -5,6 +5,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // CSRF protection: validate Origin header
+  const origin = req.headers.origin
+  const allowedOrigins = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    'https://glock.dev',
+    'https://getglock.dev',
+    'https://www.getglock.dev',
+  ].filter(Boolean)
+
+  if (origin && !allowedOrigins.includes(origin)) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
+
   const supabase = createServerClient()
 
   // Check auth

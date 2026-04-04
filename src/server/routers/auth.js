@@ -2,13 +2,14 @@ import { z } from 'zod'
 import { router, publicProcedure, protectedProcedure } from '../trpc'
 import crypto from 'crypto'
 
-// Generate a random code in XXXX-YYYY format
+// Generate a random code in XXXX-YYYY format (cryptographically secure)
 function generateUserCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // Exclude ambiguous chars
+  const bytes = crypto.randomBytes(8)
   let code = ''
   for (let i = 0; i < 8; i++) {
     if (i === 4) code += '-'
-    code += chars[Math.floor(Math.random() * chars.length)]
+    code += chars[bytes[i] % chars.length]
   }
   return code
 }
@@ -23,7 +24,7 @@ export const authRouter = router({
   requestDeviceCode: publicProcedure
     .input(
       z.object({
-        clientId: z.string().optional(),
+        clientId: z.string().max(100).regex(/^[a-zA-Z0-9_-]*$/).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -41,7 +42,8 @@ export const authRouter = router({
       })
 
       if (error) {
-        throw new Error(`Failed to create device code: ${error.message}`)
+        console.error('Failed to create device code:', error.message)
+        throw new Error('Failed to create device code')
       }
 
       return {

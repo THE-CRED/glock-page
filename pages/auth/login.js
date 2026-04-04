@@ -29,10 +29,14 @@ export default function Login() {
 
   const handleRedirect = () => {
     if (returnTo) {
-      router.push(decodeURIComponent(returnTo))
-    } else {
-      router.push('/')
+      const decoded = decodeURIComponent(returnTo)
+      // Validate: must be a relative path, no protocol injection
+      if (decoded.startsWith('/') && !decoded.startsWith('//') && !decoded.includes(':')) {
+        router.push(decoded)
+        return
+      }
     }
+    router.push('/')
   }
 
   const handleEmailAuth = async (e) => {
@@ -47,7 +51,7 @@ export default function Login() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: `${window.location.origin}/auth/callback?returnTo=${encodeURIComponent(returnTo || '/')}`,
           },
         })
         if (error) throw error

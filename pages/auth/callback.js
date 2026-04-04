@@ -3,6 +3,13 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../../src/lib/supabase'
 
+function safeRedirect(url) {
+  if (url && url.startsWith('/') && !url.startsWith('//') && !url.includes(':')) {
+    return url
+  }
+  return '/'
+}
+
 export default function AuthCallback() {
   const router = useRouter()
   const [error, setError] = useState('')
@@ -20,14 +27,14 @@ export default function AuthCallback() {
       }
 
       if (session) {
-        // Redirect to the return URL or home
-        const redirectTo = returnTo ? decodeURIComponent(returnTo) : '/'
+        // Redirect to the return URL or home (validated)
+        const redirectTo = safeRedirect(returnTo ? decodeURIComponent(returnTo) : '/')
         router.push(redirectTo)
       } else {
         // Wait for auth state change
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
           if (session) {
-            const redirectTo = returnTo ? decodeURIComponent(returnTo) : '/'
+            const redirectTo = safeRedirect(returnTo ? decodeURIComponent(returnTo) : '/')
             router.push(redirectTo)
             subscription.unsubscribe()
           }
